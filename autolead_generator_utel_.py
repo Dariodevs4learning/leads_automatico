@@ -9,36 +9,46 @@ Original file is located at
 
 import random
 import pandas as pd
+from datetime import datetime
 
 def generate_leads(country_codes, num_leads):
     """Generates leads with random names, emails, and phone numbers based on country codes."""
 
-    first_names = ["Liam", "Olivia", "Noah", "Emma", "Oliver", "Ava", "William", "Sophia", "Elijah", "Isabella",
+    first_names = ["Liam", "Olivia", "Noah", "Emma", "Oliver", "Ava", "William", "Sophia", "Elijah", "Isabella", 
                    "Juan", "Carlos", "María", "José", "Luis", "Ana", "Pedro", "Marta", "Javier", "Isabel",
                    "Daniel", "Carmen", "Antonio", "Laura", "Francisco", "Elena", "Manuel", "Patricia",
                    "Andrés", "Beatriz", "Ricardo", "Silvia", "Fernando", "Sofía", "Raúl", "Gabriela",
                    "Hugo", "Valeria", "Diego", "Claudia", "Pablo", "Natalia", "Óscar", "Lucía", "Jorge",
                    "Rosa", "Ramón", "Cristina", "Sergio", "Verónica", "Alberto", "Teresa", "Emilio", "Julia",
                    "Eduardo", "Daniela", "Roberto", "Monica", "Ángel", "Rocío", "Gustavo", "Andrea"]
-
-
-    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+    
+    last_names = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", 
                   "García", "Martínez", "López", "Hernández", "González", "Pérez", "Rodríguez", "Sánchez", "Ramírez", "Torres",
-                    "Flores", "Rivera", "Gómez", "Díaz", "Vásquez", "Mendoza", "Castro", "Romero", "Ortiz", "Guerrero",
-                    "Silva", "Rojas", "Cruz", "Morales", "Delgado", "Jiménez", "Reyes", "Ruiz", "Navarro", "Soto",
-                    "Suárez", "Molina", "Mejía", "Paredes", "Núñez", "Cabrera", "Fuentes", "Escobar", "Valenzuela", "Carrasco",
-                    "Salazar", "Peña", "Campos", "Arias", "Vega", "Montoya", "Córdoba", "Espinoza", "León", "Aguilar"]
-
-
+                  "Flores", "Rivera", "Gómez", "Díaz", "Vásquez", "Mendoza", "Castro", "Romero", "Ortiz", "Guerrero",
+                  "Silva", "Rojas", "Cruz", "Morales", "Delgado", "Jiménez", "Reyes", "Ruiz", "Navarro", "Soto",
+                  "Suárez", "Molina", "Mejía", "Paredes", "Núñez", "Cabrera", "Fuentes", "Escobar", "Valenzuela", "Carrasco",
+                  "Salazar", "Peña", "Campos", "Arias", "Vega", "Montoya", "Córdoba", "Espinoza", "León", "Aguilar"]
+    
     DOMAINS = "@testingUtel.com"
+
+    # Obtener la fecha actual en formato "díaMesAño" (ejemplo: 24Feb2025)
+    today = datetime.now().strftime("%d%b%Y")  # %d = día, %b = mes abreviado, %Y = año
 
     leads_data = []
     for country, phone_prefix in country_codes.items():
-        for _ in range(num_leads):
+        for i in range(num_leads):
             first_name = random.choice(first_names)
             last_name = random.choice(last_names)
-            email = f"{first_name.lower()}{last_name.lower()}{DOMAINS}"
-            phone_number = phone_prefix
+            # Usar el nombre (first_name) como base para el correo, en minúsculas
+            name_segment = first_name.lower()
+            # Número consecutivo con formato de 3 dígitos (001, 002, etc.)
+            consecutive = f"{i+1:03d}"  # :03d asegura 3 dígitos con ceros a la izquierda
+            # Construir el correo: primer nombre + primeras tres letras del pais + país + fecha + consecutivo + dominio
+            email = f"{name_segment}{country[:3].lower()}{today}{consecutive}{DOMAINS}"
+            phone_prefix = "+" + phone_prefix[:2]  # Tomar los primeros 2 dígitos como prefijo (ejemplo: "+59")
+            random_digits = ''.join([str(random.randint(0, 9)) for _ in range(9)])  # 9 dígitos aleatorios
+            phone_number = f"{phone_prefix}{random_digits}"
+            
             leads_data.append({
                 "Nombre": f"{first_name} {last_name}",
                 "Email": email,
@@ -70,16 +80,17 @@ selected_country = input("Enter the country: ").upper()
 num_leads_str = input("Enter the number of leads to generate: ")
 
 try:
-  num_leads = int(num_leads_str)
-  if selected_country in country_codes:
-      # Filter country codes for the selected country
-      filtered_country_codes = {selected_country: country_codes[selected_country]}
-      leads = generate_leads(filtered_country_codes, num_leads)
-      df = pd.DataFrame(leads)
-      df.to_csv("Lead's_Generados.csv", index=False, encoding="utf-8")
-      print("Los datos se han guardado exitosamente en un archivo csv.")
-      #print(df)
-  else:
-    print("Country not found in the list.")
+    num_leads = int(num_leads_str)
+    if selected_country in country_codes:
+        # Filter country codes for the selected country
+        filtered_country_codes = {selected_country: country_codes[selected_country]}
+        leads = generate_leads(filtered_country_codes, num_leads)
+        df = pd.DataFrame(leads)
+        df.to_csv("Lead's_Generados.csv", index=False, encoding="utf-8")
+        print("Los datos se han guardado exitosamente en un archivo csv.")
+        # Mostrar los datos en pantalla (opcional)
+        print(df)
+    else:
+        print("Country not found in the list.")
 except ValueError:
-  print("Invalid input. Please enter a valid number for the number of leads.")
+    print("Invalid input. Please enter a valid number for the number of leads.")
